@@ -164,10 +164,13 @@ This section:
  - Checks that required Avicenna columns exist 
  - Warns about missing or invalid data
 
-```{r setup-folders}
+```{r setup}
 
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
 
+```
+
+```{r setup-folders, warning = FALSE, message = FALSE}
 # Folder setup
 
 required_folders <- c("data", "old", "exports")
@@ -539,7 +542,7 @@ These visualizations help you quickly understand how your sample is responding.
 They mostly reflect compliance, based on the description in the compliance calculation above, but also give some insight into the different statuses and mean response times.
 
 
-```{r all-plots}
+```{r all-plots, warning=FALSE}
 
 # Visualization Section
 
