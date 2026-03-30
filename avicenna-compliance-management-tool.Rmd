@@ -743,6 +743,7 @@ if (n_participants < 50) {
 These sections only run if you set the corresponding toggle to TRUE in the User Inputs section.
 
 They allow you to:
+
  - Link external participant IDs
  - Generate additional visualizations
  - Export participant id's and compliance to Excel
