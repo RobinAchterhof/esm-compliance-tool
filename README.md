@@ -12,6 +12,23 @@ Knit the `.Rmd` file at any point during your study to get an HTML report with c
 
 ---
 
+## New to R? Start here
+
+This tool runs in R and RStudio, which are free to install. If you have never used them before, follow these steps first:
+
+1. Install R from [cran.r-project.org](https://cran.r-project.org/) — choose your operating system and download the latest version
+2. Install RStudio from [posit.co/download/rstudio-desktop](https://posit.co/download/rstudio-desktop/) — this is the application you will actually work in
+3. Open RStudio, paste the line below into the **Console** (the panel at the bottom left), and press Enter. This installs everything the tool needs:
+```r
+install.packages(c("tidyverse", "lubridate", "scales", "readxl", "openxlsx"))
+```
+
+4. Once that finishes, come back to the **Getting started** section below.
+
+> This only needs to be done once. After that, using the tool is just opening a file and pressing a button.
+
+---
+
 ## Setup
 
 **Requirements:** R, RStudio, and the following packages:
@@ -34,7 +51,7 @@ install.packages(c("tidyverse", "lubridate", "scales", "readxl", "openxlsx"))
 ## Trying it out
 
 Set `use_demo_dataset <- TRUE` in the first code chunk to run the tool on simulated data, without needing your own CSV.
-
+ 
 ---
 
 ## Optional modules
