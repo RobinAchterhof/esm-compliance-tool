@@ -9,7 +9,7 @@ output:
     theme: flatly
 ---
 
-# About this ESM Compliance Monitoring Tool
+# About this ESM Compliance Monitoring Tool 
 
 This document is a beginner-friendly template for monitoring Experience Sampling Method (ESM) compliance in studies that use **Avicenna** to collect data. It allows you to:
 
@@ -62,9 +62,11 @@ These settings can be adapted during the study, reflecting the current moment in
 data_path <- "data"
 
 # Core study settings
-study_day       <- 10
+# Note: if use_demo_dataset = TRUE, the demo is generated using these values.
+# Adjust them to reflect the study you want to simulate.
+study_day       <- 5
 current_prompt  <- 3
-beeps_per_day   <- 3
+beeps_per_day   <- 10
 start_date      <- as.Date("2026-02-28")
 
 ```
@@ -74,15 +76,18 @@ start_date      <- as.Date("2026-02-28")
 If you want to try this template without your own data, enable the demo dataset here. If you want, you can also adjust the number of participants, days, and beeps per day in these simulated data.
 
 ```{r use-demo}
-use_demo_dataset <- FALSE
+use_demo_dataset <- TRUE
 # Demo dataset settings (only used when use_demo_dataset = TRUE)
-demo_n_participants <- 49
-demo_n_days        <- 6
-demo_beeps_per_day <- 10
-
+demo_n_participants <- 30
+demo_n_days        <- study_day        # mirrors your study settings
+demo_beeps_per_day <- beeps_per_day    # mirrors your study settings
 ```
 
-If you have your own Avicenna dataset, set this to `FALSE`. 
+> **Using the demo?** Make sure the study settings above (`study_day`, 
+> `beeps_per_day`, `start_date`) reflect the study you want to simulate — 
+> the demo dataset is generated based on those values. The defaults are a 
+> good starting point. Set `use_demo_dataset <- FALSE` when you are ready 
+> to use your own data.
 
 ## Optional Modules (simple toggles)
 
@@ -93,7 +98,7 @@ Set a toggle to TRUE to activate a module.
 If you are unsure, leave everything on FALSE.
 
 ```{r toggles}
-use_multiple_files <- TRUE   # Merge multiple Avicenna Activities
+use_multiple_files <- FALSE   # Merge multiple Avicenna Activities
 use_excel_export   <- TRUE    # Export compliance to Excel
 use_external_ids   <- TRUE    # Merge external participant IDs (requires external_ids.xlsx)
 use_remuneration   <- TRUE    # Add payment calculations to Excel
@@ -135,7 +140,7 @@ To enable remuneration:
 
  3. Adjust the corresponding payment values to your design
  
-```{r set-external-ids}
+```{r set-remuneration}
 payment_mode <- "per_beep"   # "per_beep" or "threshold"
 
 payment_per_beep <- 0.50     # Used when payment_mode = "per_beep"
@@ -200,9 +205,37 @@ If you exported **multiple Avicenna files** (i.e., different Activities), set us
 If you set use_demo_dataset = TRUE, the code below will create some simulated data for you.
 
 
-```{r load-data}
+```{r load-data, message=FALSE}
 library(tidyverse)
 library(lubridate)
+
+# ---- Incompatible settings check ----
+if (use_demo_dataset && use_multiple_files) {
+  cat("<div style='padding:12px; background:#F8D7DA; border-left:6px solid #C82333; margin:20px 0;'>
+<strong>❌ Incompatible settings:</strong> <code>use_demo_dataset</code> and <code>use_multiple_files</code> are both set to <code>TRUE</code>.<br>
+The demo dataset is a single simulated file and cannot be combined with multiple Avicenna activities.<br>
+Please set one of them to <code>FALSE</code> and re-knit.
+</div>")
+  stop("Incompatible settings: use_demo_dataset and use_multiple_files cannot both be TRUE.")
+}
+
+# ---- Incompatible settings check ----
+if (use_demo_dataset && use_multiple_files) {
+  cat("<div style='padding:12px; background:#F8D7DA; border-left:6px solid #C82333; margin:20px 0;'>
+<strong>❌ Incompatible settings:</strong> <code>use_demo_dataset</code> and <code>use_multiple_files</code> are both set to <code>TRUE</code>.<br>
+The demo dataset is a single simulated file and cannot be combined with multiple Avicenna activities.<br>
+Please set one of them to <code>FALSE</code> and re-knit.
+</div>")
+  stop("Incompatible settings: use_demo_dataset and use_multiple_files cannot both be TRUE.")
+}
+
+if (use_demo_dataset && (demo_n_days != study_day || demo_beeps_per_day != beeps_per_day)) {
+  cat("<div style='padding:12px; background:#FFF3CD; border-left:6px solid #FFA000; margin:20px 0;'>
+<strong>⚠ Warning:</strong> Your demo settings (<code>demo_n_days</code>, <code>demo_beeps_per_day</code>) do not match your study settings (<code>study_day</code>, <code>beeps_per_day</code>).<br>
+This will cause <code>n_completed</code> to exceed <code>expected</code> in the compliance table.<br>
+Either align the demo settings with your study settings, or set <code>demo_n_days <- study_day</code> and <code>demo_beeps_per_day <- beeps_per_day</code>.
+</div>")
+}
 
 # Load dataset (demo or real)
 if (use_demo_dataset) {
@@ -213,10 +246,14 @@ if (use_demo_dataset) {
   n   <- length(ids)
 
   start_time      <- as.POSIXct(paste(start_date, "08:00:00"))
-  scheduled_times <- start_time + rep(
-    seq(0, demo_n_days * 24 * 3600, length.out = demo_n_days * demo_beeps_per_day),
-    times = demo_n_participants
-  )
+  scheduled_times <- as.POSIXct(unlist(lapply(1:demo_n_participants, function(p) {
+    set.seed(p)
+    as.numeric(start_time) + sort(sample(
+      seq(0, demo_n_days * 24 * 3600, by = 3600),
+      size    = demo_n_days * demo_beeps_per_day,
+      replace = FALSE
+    ))
+  })), origin = "1970-01-01")
 
   status_values <- sample(
     x       = c(1, 0, 3, 2, 4, 6, 5),
@@ -348,7 +385,7 @@ suppressWarnings({
 })
 
 # Check for invalid Status values
-valid_statuses <- c(0,1,2,3,4,5,6)
+valid_statuses <- c(0, 1, 2, 3, 4, 5, 6)
 if (any(!esm$Status %in% valid_statuses)) {
   cat("<div style='padding:10px; background:#F8D7DA; border-left:5px solid #C82333; margin:10px 0;'>
       <strong>❌ Error:</strong> Unexpected Status values detected. Avicenna Status must be 0–6.
@@ -366,8 +403,9 @@ if (any(esm$Record.Time < esm$Prompt.Time, na.rm = TRUE)) {
       ")
 }
 
-# Check for duplicate rows
-if (any(duplicated(esm))) {
+# Check for duplicate rows (skipped for demo data, where duplicates are expected)
+has_duplicates <- !use_demo_dataset && any(duplicated(esm))
+if (has_duplicates) {
   cat("<div style='padding:10px; background:#FFF3CD; border-left:5px solid #FFA000; margin:10px 0;'>
       <strong>⚠ Warning:</strong> Duplicate rows detected in the dataset. Consider removing them.
       </div>
@@ -379,9 +417,12 @@ if (any(duplicated(esm))) {
 if (min(esm$date, na.rm = TRUE) > start_date) {
   cat("<div style='padding:10px; background:#FFF3CD; border-left:5px solid #FFA000; margin:10px 0;'>
       <strong>⚠ Warning:</strong> Earliest date in data is AFTER the study start date.
-      </div>")
+      </div>
+      
+      ")
 }
 
+# Check for all-missing timestamps
 if (all(is.na(esm$date))) {
   cat("<div style='padding:10px; background:#F8D7DA; border-left:5px solid #C82333; margin:10px 0;'>
       <strong>❌ Error:</strong> All timestamps are missing. Check your dataset.
@@ -394,7 +435,7 @@ if (all(is.na(esm$date))) {
 if (length(missing) == 0 &&
     all(esm$Status %in% valid_statuses) &&
     !any(esm$Record.Time < esm$Prompt.Time, na.rm = TRUE) &&
-    !any(duplicated(esm)) &&
+    !has_duplicates &&
     !(min(esm$date, na.rm = TRUE) > start_date) &&
     !all(is.na(esm$date))) {
 
@@ -404,8 +445,6 @@ if (length(missing) == 0 &&
 </div>
 ")
 }
-
-
 ```
 
 
@@ -486,17 +525,17 @@ The values below give you a quick overview of how compliant your sample is.
 They are often the first numbers you want to check during a study.
 
 ```{r compliance-summary}
-
 compliance_summary <- compliance_person %>%
   summarise(
     mean_compliance   = mean(compliance, na.rm = TRUE),
     median_compliance = median(compliance, na.rm = TRUE),
     sd_compliance     = sd(compliance, na.rm = TRUE),
-    min_compliance = min(compliance, na.rm = TRUE),
-    max_compliance     = max(compliance, na.rm = TRUE)
+    min_compliance    = min(compliance, na.rm = TRUE),
+    max_compliance    = max(compliance, na.rm = TRUE)
   )
 
-compliance_summary
+compliance_summary %>%
+  knitr::kable(digits = 3, caption = "Compliance summary across all participants")
 
 ```
 
@@ -570,6 +609,7 @@ print(compliance_distribution_plot)
 
 
 # 4. Spaghetti plot (small vs large logic)
+# 4. Spaghetti plot (small vs large logic)
 daily_person <- esm %>%
   group_by(Participant.ID, date) %>%
   summarise(compliance = mean(is_completed), .groups = "drop")
@@ -578,12 +618,9 @@ n_participants <- length(unique(daily_person$Participant.ID))
 
 if (n_participants == 0) {
 
-  # No participant-level data → show a friendly message
   cat("<div style='padding:10px; background:#FFF3CD; border-left:5px solid #FFA000; margin:20px 0;'>
        <strong>⚠ No participant-level data available for the spaghetti plot.</strong>
-       </div>
-      
-      ")
+       </div>")
 
 } else if (n_participants <= 20) {
 
@@ -595,6 +632,7 @@ if (n_participants == 0) {
                                              color = Participant.ID)) +
     geom_line(alpha = 0.8, linewidth = 1) +
     scale_color_manual(values = palette_cols) +
+    scale_y_continuous(limits = c(0, 1)) +
     theme_minimal() +
     labs(title = "Daily Compliance per Participant", y = "Compliance", color = "Participant")
 
@@ -602,12 +640,47 @@ if (n_participants == 0) {
 
 } else {
 
-  spaghetti_plot <- ggplot(daily_person, aes(date, compliance, group = Participant.ID)) +
-    geom_line(alpha = 0.2, color = "#03A9F4") +
+  daily_person <- daily_person %>%
+    mutate(compliance_bin = cut(
+      compliance,
+      breaks = c(-Inf, 0, 0.33, 0.67, 0.99, Inf),
+      labels = c("0%", "1-33%", "34-66%", "67-99%", "100%"),
+      right  = TRUE
+    ))
+
+  bin_colors <- c(
+    "0%"     = "#F44336",
+    "1-33%"  = "#FF7043",
+    "34-66%" = "#FFC107",
+    "67-99%" = "#8BC34A",
+    "100%"   = "#4CAF50"
+  )
+
+  participant_order <- compliance_person %>%
+    arrange(desc(compliance)) %>%
+    pull(Participant.ID)
+
+  daily_person$Participant.ID <- factor(
+    daily_person$Participant.ID,
+    levels = participant_order
+  )
+
+  spaghetti_plot <- ggplot(daily_person,
+                           aes(x = date, y = Participant.ID, fill = compliance_bin)) +
+    geom_tile(color = "white", linewidth = 0.3) +
+    scale_fill_manual(values = bin_colors, name = "Daily compliance", drop = FALSE) +
     theme_minimal() +
-    labs(title = "Daily Compliance per Participant",
-         subtitle = "Neutral colour used due to large sample size",
-         y = "Compliance")
+    theme(
+      axis.text.y  = element_blank(),
+      axis.ticks.y = element_blank(),
+      panel.grid   = element_blank()
+    ) +
+    labs(
+      title    = "Daily Compliance per Participant",
+      subtitle = paste0(n_participants, " participants, ordered by overall compliance (best at top)"),
+      x        = "Date",
+      y        = "Participant"
+    )
 
   print(spaghetti_plot)
 }
@@ -692,9 +765,9 @@ This optional module allows you to link Avicenna IDs to your own external IDs.
 
 To use it:
 
- - Create a file named `external_ids.xlxs`
+ - Create a file named `external_ids.xlsx`
  - Place it in the same folder as this `.Rmd` file
- - Make sure it contains **exactly two columns**:
+ - Make sure it contains **at least** the following two columns:
  
 #### Example structure of `external_ids.xlsx`:
 
@@ -723,10 +796,12 @@ if (use_external_ids) {
     cat("
 <div style='padding:12px; background:#F8D7DA; border-left:6px solid #C82333; margin:20px 0;'>
 <strong>❌ Error:</strong> The external_ids.xlsx file is missing required columns:<br>
-", paste(missing_cols, collapse = ", "), "
+", paste(missing_cols, collapse = ", "), "<br>
+Please add these columns and re-knit.
 </div>
 
 ")
+    stop("external_ids.xlsx is missing required columns: ", paste(missing_cols, collapse = ", "))
   }
 
   # Ensure matching types
@@ -763,13 +838,15 @@ Only the first occurrence for each participant will be used.
 
 ## 7.2 Excel Export 
 
-This module creates a clean Excel file containing: Participant ID, total beeps, completed beeps, compliance proportion, status breakdown, rank (highest to lowest compliance), and optional remuneration (if enabled).
-
+This module creates a clean Excel file containing: Participant ID, total beeps, number of completed beeps (`n_completed`), compliance proportion, sync status, rank (highest to lowest compliance), and optional remuneration (if enabled).
 
 ```{r excel-export}
 
 if (use_excel_export) {
   library(openxlsx)
+  
+    compliance_person <- compliance_person %>%
+    mutate(Participant.ID = as.character(Participant.ID))
 
   # ---- 1. Prepare main export data ----
   base_cols <- c("Participant.ID", "n_completed", "expected", "compliance",
