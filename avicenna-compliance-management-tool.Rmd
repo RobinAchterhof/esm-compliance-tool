@@ -99,9 +99,9 @@ If you are unsure, leave everything on FALSE.
 
 ```{r toggles}
 use_multiple_files <- FALSE   # Merge multiple Avicenna Activities
-use_excel_export   <- TRUE    # Export compliance to Excel
-use_external_ids   <- TRUE    # Merge external participant IDs (requires external_ids.xlsx)
-use_remuneration   <- TRUE    # Add payment calculations to Excel
+use_excel_export   <- FALSE    # Export compliance to Excel
+use_external_ids   <- FALSE    # Merge external participant IDs (requires external_ids.xlsx)
+use_remuneration   <- FALSE    # Add payment calculations to Excel
 ```
 
 ## Advanced Settings (only relevant if toggles above are TRUE)
@@ -166,6 +166,8 @@ This section:
 
 ```{r setup-folders}
 
+knitr::opts_chunk$set(echo = FALSE)
+
 # Folder setup
 
 required_folders <- c("data", "old", "exports")
@@ -209,15 +211,6 @@ If you set use_demo_dataset = TRUE, the code below will create some simulated da
 library(tidyverse)
 library(lubridate)
 
-# ---- Incompatible settings check ----
-if (use_demo_dataset && use_multiple_files) {
-  cat("<div style='padding:12px; background:#F8D7DA; border-left:6px solid #C82333; margin:20px 0;'>
-<strong>❌ Incompatible settings:</strong> <code>use_demo_dataset</code> and <code>use_multiple_files</code> are both set to <code>TRUE</code>.<br>
-The demo dataset is a single simulated file and cannot be combined with multiple Avicenna activities.<br>
-Please set one of them to <code>FALSE</code> and re-knit.
-</div>")
-  stop("Incompatible settings: use_demo_dataset and use_multiple_files cannot both be TRUE.")
-}
 
 # ---- Incompatible settings check ----
 if (use_demo_dataset && use_multiple_files) {
