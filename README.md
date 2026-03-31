@@ -56,6 +56,7 @@ Set `use_demo_dataset <- TRUE` in the first code chunk to run the tool on simula
 
 ## Optional modules
 
+
 | Toggle | What it does |
 |---|---|
 | `use_multiple_files` | Merge exports from multiple Avicenna Activities |
@@ -64,19 +65,8 @@ Set `use_demo_dataset <- TRUE` in the first code chunk to run the tool on simula
 | `use_remuneration` | Add per-beep or threshold-based payment calculations |
 | `use_plots` | Generate compliance visualizations | 
 | `use_quality_indicators` | Compute data quality indicators |
-```
-
 
 Full instructions for each module are in the `.Rmd` file itself.
-
----
-
-## Citation
-
-If you use this tool in your research, please cite:
-
-Achterhof, R. (2026). *Avicenna ESM Compliance Monitoring Tool* (v1.0.0). 
-Zenodo. https://doi.org/10.5281/zenodo.19340127
 
 ---
 
@@ -84,4 +74,4 @@ Zenodo. https://doi.org/10.5281/zenodo.19340127
 
 Inspired by ESM compliance tools developed by **Anne Buelow** for the [100 Days Of My Life](https://osf.io/a9g7c/overview) and [PARADOX](https://osf.io/mwpt7/files/m2qwh) studies. Generative AI was used to help draft and refine the code.
 
-Issues and suggestions welcome — **[open a GitHub issue here](https://github.com/RobinAchterhof/esm-compliance-tool/issues)** or get in touch at achterhof@essb.eur.nl.
+Issues and suggestions welcome — please open a GitHub issue or get in touch by email.
