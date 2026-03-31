@@ -64,13 +64,6 @@ study_day       <- 5
 current_beep  <- 3
 beeps_per_day   <- 10
 start_date      <- as.Date("2026-02-28")
-
-# Fraud detection: minimum plausible seconds per questionnaire item.
-# A completed beep is flagged as suspiciously fast if:
-#   response time (seconds) < n_items * min_seconds_per_item
-# The number of items is estimated automatically from the data columns.
-# You can raise this threshold if your items require more careful reading.
-min_seconds_per_item <- 1
 ```
 
 ## Demo mode (quick start)
@@ -101,9 +94,9 @@ Set a toggle to TRUE to activate a module. If you are unsure, leave everything o
 
 ```{r toggles}
 use_multiple_files     <- FALSE   # Merge multiple Avicenna Activities
-use_excel_export       <- FALSE   # Export compliance to Excel
+use_excel_export       <- TRUE   # Export compliance to Excel
 use_external_ids       <- FALSE   # Merge external participant IDs (requires external_ids.xlsx)
-use_remuneration       <- FALSE   # Add payment calculations to Excel
+use_remuneration       <- TRUE   # Add payment calculations to Excel
 use_plots              <- TRUE    # Generate compliance visualizations (Section 6)
 use_quality_indicators <- TRUE    # Compute data quality indicators (Section 7.1)
 ```
@@ -154,6 +147,26 @@ payment_thresholds <- c(
   "0.00" = 20    # Otherwise → €20
 )
 ```
+
+
+### Data quality indicators
+
+Only needed if `use_quality_indicators = TRUE`.
+
+**About data quality indicators:** This module computes several simple checks that help you evaluate whether participants responded carefully and plausibly. These checks are based on responses that are too quick, or too similar to each other, and they require item‑level response data (VAS or SAQ items) to be present in your dataset.
+
+Note that these indicators are not proof of careless responding — they are simply signals that may warrant closer inspection. Interpretation should always consider the study context and the participant’s overall pattern.
+
+The only adjustable setting here is the minimum amount of time *per item* that you estimate people need to reliably complete it. The default of 0.5 second per item is somewhat arbitrary.
+
+```{r}
+# Minimum plausible seconds per questionnaire item.
+# A completed beep is flagged as suspiciously fast if:
+#   response time (seconds) < n_items * min_seconds_per_item
+# You can increase this threshold if your items require more reading time.
+min_seconds_per_item <- 0.5
+```
+
 
 # 2. Folder Setup
 
@@ -896,7 +909,7 @@ This module computes four complementary indicators of response quality, drawing 
 ### Quantity indicators
 
 - **Compliance rate** — proportion of expected beeps completed (already shown in Section 5)
-- **Suspiciously fast completions** — completed beeps where response time fell below `n_items × min_seconds_per_item` seconds (i.e., faster than 1s per item), suggesting the participant may have rushed through without reading items carefully
+- **Suspiciously fast completions** — completed beeps where response time fell below `n_items × min_seconds_per_item` seconds (i.e., faster than `min_seconds_per_item` per item), suggesting the participant may have rushed through without reading items carefully
 
 ### Quality indicators
 
