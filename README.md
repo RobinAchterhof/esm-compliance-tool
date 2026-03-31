@@ -62,6 +62,10 @@ Set `use_demo_dataset <- TRUE` in the first code chunk to run the tool on simula
 | `use_external_ids` | Link Avicenna IDs to your own participant codes |
 | `use_excel_export` | Save a timestamped `.xlsx` compliance report |
 | `use_remuneration` | Add per-beep or threshold-based payment calculations |
+| `use_plots` | Generate compliance visualizations | 
+| `use_quality_indicators` | Compute data quality indicators |
+```
+
 
 Full instructions for each module are in the `.Rmd` file itself.
 
