@@ -80,4 +80,4 @@ Zenodo. https://doi.org/10.5281/zenodo.19340127
 
 Inspired by ESM compliance tools developed by **Anne Buelow** for the [100 Days Of My Life](https://osf.io/a9g7c/overview) and [PARADOX](https://osf.io/mwpt7/files/m2qwh) studies. Generative AI was used to help draft and refine the code.
 
-Issues and suggestions welcome — please open a GitHub issue or get in touch by email.
+Issues and suggestions welcome — **[open a GitHub issue here](https://github.com/RobinAchterhof/esm-compliance-tool/issues)** or get in touch at achterhof@essb.eur.nl.
